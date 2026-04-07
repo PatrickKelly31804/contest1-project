@@ -55,6 +55,11 @@ GameStart:
     exit
 main ENDP
 
+;----------------------------------------------------------
+; InitGame
+; Resets the player, score, game state, and meteor positions
+;----------------------------------------------------------
+
 InitGame PROC
     mov playerCol,15
     mov score,0
@@ -77,6 +82,11 @@ InitLoop:
 
     ret
 InitGame ENDP
+
+;----------------------------------------------------------
+; ShowTitle
+; Displays the title screen and basic controls
+;----------------------------------------------------------
 
 ShowTitle PROC
     call Clrscr
@@ -101,6 +111,11 @@ ShowTitle PROC
 
     ret
 ShowTitle ENDP
+
+;----------------------------------------------------------
+; RunGame
+; Main loop for drawing, input, meteor movement, and scoring
+;----------------------------------------------------------
 
 RunGame PROC
 
@@ -128,6 +143,11 @@ EndGame:
     ret
 
 RunGame ENDP
+
+;----------------------------------------------------------
+; DrawGame
+; Draws score, player, and all active meteors
+;----------------------------------------------------------
 
 DrawGame PROC
     call Clrscr
@@ -172,6 +192,11 @@ Skip:
     ret
 DrawGame ENDP
 
+;----------------------------------------------------------
+; HandleInput
+; Reads keyboard input and moves the player left or right
+;----------------------------------------------------------
+
 HandleInput PROC
 
     call ReadKey
@@ -205,6 +230,11 @@ NoInput:
 
 HandleInput ENDP
 
+;----------------------------------------------------------
+; UpdateMeteors
+; Moves meteors downward and respawns them at the top
+;----------------------------------------------------------
+
 UpdateMeteors PROC
     mov ecx,METEOR_COUNT
     mov esi,0
@@ -230,6 +260,11 @@ Next:
     ret
 UpdateMeteors ENDP
 
+;----------------------------------------------------------
+; CheckCollision
+; Detects whether a meteor has hit the player
+;----------------------------------------------------------
+
 CheckCollision PROC
     mov ecx,METEOR_COUNT
     mov esi,0
@@ -253,6 +288,11 @@ Continue:
 
     ret
 CheckCollision ENDP
+
+;----------------------------------------------------------
+; ShowGameOver
+; Displays final score and replay instructions
+;----------------------------------------------------------
 
 ShowGameOver PROC
     call Clrscr
