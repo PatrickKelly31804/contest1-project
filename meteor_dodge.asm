@@ -178,6 +178,13 @@ DrawGame PROC
     mov eax,score
     call WriteDec
 
+    ; draw divider line
+    mov dh,1
+    mov dl,0
+    call Gotoxy
+    mov edx,OFFSET titleMsg
+    call WriteString
+
     ; draw player
     mov dh,PLAYER_ROW
     mov eax,playerCol
@@ -217,8 +224,7 @@ DrawGame ENDP
 
 HandleInput PROC
 
-    call ReadKey
-    jz NoInput
+    call ReadChar   ; waits for input (simpler + reliable)
 
     cmp al,'a'
     je MoveLeft
@@ -230,24 +236,23 @@ HandleInput PROC
     cmp al,'D'
     je MoveRight
 
-    jmp NoInput
+    ret
 
 MoveLeft:
     cmp playerCol,0
-    je NoInput
+    je DoneMove
     dec playerCol
-    jmp NoInput
+    ret
 
 MoveRight:
-    cmp playerCol,COLS-1
-    jae NoInput
+    cmp playerCol,29
+    jae DoneMove
     inc playerCol
 
-NoInput:
+DoneMove:
     ret
 
 HandleInput ENDP
-
 
 ;----------------------------------------------------------
 ; UpdateMeteors
