@@ -15,10 +15,13 @@
 
 INCLUDE Irvine32.inc
 
+
 ROWS = 20
 COLS = 30
 METEOR_COUNT = 5
 PLAYER_ROW = 18
+
+
 
 .data
 titleMsg        BYTE "METEOR DODGE",0
@@ -40,6 +43,8 @@ meteorCols      DWORD METEOR_COUNT DUP(0)
 
 .code
 
+
+
 main PROC
     call Randomize
 
@@ -58,6 +63,9 @@ GameStart:
 
     exit
 main ENDP
+
+
+
 
 ;----------------------------------------------------------
 ; InitGame
@@ -87,6 +95,7 @@ InitLoop:
     ret
 InitGame ENDP
 
+
 ;----------------------------------------------------------
 ; ShowTitle
 ; Displays the title screen and basic controls
@@ -115,6 +124,8 @@ ShowTitle PROC
 
     ret
 ShowTitle ENDP
+
+
 
 ;----------------------------------------------------------
 ; RunGame
@@ -148,12 +159,14 @@ EndGame:
 
 RunGame ENDP
 
+
 ;----------------------------------------------------------
 ; DrawGame
 ; Draws score, player, and all active meteors
 ;----------------------------------------------------------
 
 DrawGame PROC
+
     call Clrscr
 
     ; draw score
@@ -196,6 +209,7 @@ Skip:
     ret
 DrawGame ENDP
 
+
 ;----------------------------------------------------------
 ; HandleInput
 ; Reads keyboard input and moves the player left or right
@@ -234,6 +248,7 @@ NoInput:
 
 HandleInput ENDP
 
+
 ;----------------------------------------------------------
 ; UpdateMeteors
 ; Moves meteors downward and respawns them at the top
@@ -264,6 +279,7 @@ Next:
     ret
 UpdateMeteors ENDP
 
+
 ;----------------------------------------------------------
 ; CheckCollision
 ; Detects whether a meteor has hit the player
@@ -292,6 +308,7 @@ Continue:
 
     ret
 CheckCollision ENDP
+
 
 ;----------------------------------------------------------
 ; ShowGameOver
