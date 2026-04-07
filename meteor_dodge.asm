@@ -9,6 +9,10 @@
 ; Uses Irvine32 library functions (WriteString, RandomRange, Delay, Gotoxy)
 ; These were provided in class materials and Irvine examples.
 
+; Environment note:
+; This file is being edited on macOS in VS Code.
+; Final compile and testing will be done on the Windows MASM + Irvine32 setup used in class.
+
 INCLUDE Irvine32.inc
 
 ROWS = 20
