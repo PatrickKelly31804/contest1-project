@@ -1,0 +1,283 @@
+; Meteor Dodge
+; Patrick Kelly
+; CSE3120 Contest 1
+;
+; Simple survival game using MASM + Irvine32
+; Player moves left/right while meteors fall
+;
+; NOTE:
+; Uses Irvine32 library functions (WriteString, RandomRange, Delay, Gotoxy)
+; These were provided in class materials and Irvine examples.
+
+INCLUDE Irvine32.inc
+
+ROWS = 20
+COLS = 30
+METEOR_COUNT = 5
+PLAYER_ROW = 18
+
+.data
+titleMsg        BYTE "METEOR DODGE",0
+startMsg        BYTE "Press any key to start",0
+controlMsg      BYTE "A = left   D = right",0
+gameOverMsg     BYTE "GAME OVER",0
+replayMsg       BYTE "Press R to play again, any other key to quit",0
+scoreLabel      BYTE "Score: ",0
+
+playerChar      BYTE 'A'
+meteorChar      BYTE '*'
+
+playerCol       DWORD 15
+score           DWORD 0
+gameOver        BYTE 0
+
+meteorRows      DWORD METEOR_COUNT DUP(0)
+meteorCols      DWORD METEOR_COUNT DUP(0)
+
+.code
+
+main PROC
+    call Randomize
+
+GameStart:
+    call InitGame
+    call ShowTitle
+    call ReadChar
+    call RunGame
+    call ShowGameOver
+    call ReadChar
+
+    cmp al,'r'
+    je GameStart
+    cmp al,'R'
+    je GameStart
+
+    exit
+main ENDP
+
+InitGame PROC
+    mov playerCol,15
+    mov score,0
+    mov gameOver,0
+
+    mov ecx,METEOR_COUNT
+    mov esi,0
+
+InitLoop:
+    mov DWORD PTR meteorRows[esi*4],0
+
+    mov eax,COLS
+    call RandomRange
+    mov DWORD PTR meteorCols[esi*4],eax
+
+    inc DWORD PTR meteorRows[esi*4]
+
+    inc esi
+    loop InitLoop
+
+    ret
+InitGame ENDP
+
+ShowTitle PROC
+    call Clrscr
+
+    mov dh,2
+    mov dl,10
+    call Gotoxy
+    mov edx,OFFSET titleMsg
+    call WriteString
+
+    mov dh,4
+    mov dl,6
+    call Gotoxy
+    mov edx,OFFSET controlMsg
+    call WriteString
+
+    mov dh,6
+    mov dl,5
+    call Gotoxy
+    mov edx,OFFSET startMsg
+    call WriteString
+
+    ret
+ShowTitle ENDP
+
+RunGame PROC
+
+MainGameLoop:
+
+    cmp gameOver,1
+    je EndGame
+
+    call DrawGame
+    call HandleInput
+    call UpdateMeteors
+    call CheckCollision
+
+    cmp gameOver,1
+    je EndGame
+
+    inc score
+
+    mov eax,80
+    call Delay
+
+    jmp MainGameLoop
+
+EndGame:
+    ret
+
+RunGame ENDP
+
+DrawGame PROC
+    call Clrscr
+
+    ; draw score
+    mov dh,0
+    mov dl,0
+    call Gotoxy
+    mov edx,OFFSET scoreLabel
+    call WriteString
+    mov eax,score
+    call WriteDec
+
+    ; draw player
+    mov dh,PLAYER_ROW
+    mov eax,playerCol
+    mov dl,al
+    call Gotoxy
+    mov al,playerChar
+    call WriteChar
+
+    ; draw meteors
+    mov ecx,METEOR_COUNT
+    mov esi,0
+
+DrawLoop:
+    mov eax,DWORD PTR meteorRows[esi*4]
+    cmp eax,ROWS
+    jae Skip
+
+    mov dh,al
+    mov eax,DWORD PTR meteorCols[esi*4]
+    mov dl,al
+    call Gotoxy
+    mov al,meteorChar
+    call WriteChar
+
+Skip:
+    inc esi
+    loop DrawLoop
+
+    ret
+DrawGame ENDP
+
+HandleInput PROC
+
+    call ReadKey
+    jz NoInput
+
+    cmp al,'a'
+    je MoveLeft
+    cmp al,'A'
+    je MoveLeft
+
+    cmp al,'d'
+    je MoveRight
+    cmp al,'D'
+    je MoveRight
+
+    jmp NoInput
+
+MoveLeft:
+    cmp playerCol,0
+    je NoInput
+    dec playerCol
+    jmp NoInput
+
+MoveRight:
+    cmp playerCol,COLS-1
+    jae NoInput
+    inc playerCol
+
+NoInput:
+    ret
+
+HandleInput ENDP
+
+UpdateMeteors PROC
+    mov ecx,METEOR_COUNT
+    mov esi,0
+
+UpdateLoop:
+
+    inc DWORD PTR meteorRows[esi*4]
+
+    mov eax,DWORD PTR meteorRows[esi*4]
+    cmp eax,ROWS
+    jb Next
+
+    mov DWORD PTR meteorRows[esi*4],0
+
+    mov eax,COLS
+    call RandomRange
+    mov DWORD PTR meteorCols[esi*4],eax
+
+Next:
+    inc esi
+    loop UpdateLoop
+
+    ret
+UpdateMeteors ENDP
+
+CheckCollision PROC
+    mov ecx,METEOR_COUNT
+    mov esi,0
+
+CollisionLoop:
+
+    mov eax,DWORD PTR meteorRows[esi*4]
+    cmp eax,PLAYER_ROW
+    jne Continue
+
+    mov eax,DWORD PTR meteorCols[esi*4]
+    cmp eax,playerCol
+    jne Continue
+
+    mov gameOver,1
+    ret
+
+Continue:
+    inc esi
+    loop CollisionLoop
+
+    ret
+CheckCollision ENDP
+
+ShowGameOver PROC
+    call Clrscr
+
+    mov dh,5
+    mov dl,10
+    call Gotoxy
+    mov edx,OFFSET gameOverMsg
+    call WriteString
+
+    mov dh,7
+    mov dl,8
+    call Gotoxy
+    mov edx,OFFSET scoreLabel
+    call WriteString
+    mov eax,score
+    call WriteDec
+
+    mov dh,10
+    mov dl,1
+    call Gotoxy
+    mov edx,OFFSET replayMsg
+    call WriteString
+
+    ret
+ShowGameOver ENDP
+
+END main
